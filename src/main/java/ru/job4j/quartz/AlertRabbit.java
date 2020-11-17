@@ -16,43 +16,46 @@ import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
     public static void main(String[] args) {
-        Connection connection;
+
         try (InputStream in = AlertRabbit.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
             Properties rabbitProps = new Properties();
             rabbitProps.load(in);
             Class.forName(rabbitProps.getProperty("driver-class-name"));
-            connection = DriverManager.getConnection(
+            Integer interval = Integer.valueOf(rabbitProps.getProperty("rabbit.interval"));
+            try (Connection connection = DriverManager.getConnection(
                     rabbitProps.getProperty("url"),
                     rabbitProps.getProperty("username"),
                     rabbitProps.getProperty("password")
-            );
+            )) {
+                try {
+                    List<Long> store = new ArrayList<>();
+                    Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+                    scheduler.start();
+                    JobDataMap data = new JobDataMap();
+                    data.put("connection", connection);
+                    JobDetail job = newJob(Rabbit.class)
+                            .usingJobData(data)
+                            .build();
+                    SimpleScheduleBuilder times = simpleSchedule()
+                            .withIntervalInSeconds(interval)
+                            .repeatForever();
+                    Trigger trigger = newTrigger()
+                            .startNow()
+                            .withSchedule(times)
+                            .build();
+                    scheduler.scheduleJob(job, trigger);
+                    Thread.sleep(10000);
+                    scheduler.shutdown();
+                    System.out.println(store);
+                } catch (Exception se) {
+                    se.printStackTrace();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
 
         } catch (Exception e) {
             throw new IllegalStateException(e);
-        }
-
-        try {
-            List<Long> store = new ArrayList<>();
-            Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-            scheduler.start();
-            JobDataMap data = new JobDataMap();
-            data.put("connection", connection);
-            JobDetail job = newJob(Rabbit.class)
-                    .usingJobData(data)
-                    .build();
-            SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(5)
-                    .repeatForever();
-            Trigger trigger = newTrigger()
-                    .startNow()
-                    .withSchedule(times)
-                    .build();
-            scheduler.scheduleJob(job, trigger);
-            Thread.sleep(10000);
-            scheduler.shutdown();
-            System.out.println(store);
-        } catch (Exception se) {
-            se.printStackTrace();
         }
     }
 
