@@ -6,6 +6,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.text.DateFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
+
 public class SqlRuParse {
     public static void main(String[] args) throws Exception {
         Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
@@ -17,5 +23,23 @@ public class SqlRuParse {
             System.out.println(href.text());
             System.out.println(altCol.get(2 * i + 1).text());
         }
+    }
+
+    public Date convertSqlDate(String s) throws ParseException {
+        LocalDate date = LocalDate.now();
+        String pattern = "d MMM yy, hh:mm";
+        String strout = s;
+        String[] part = s.split(",");
+        if (part[0].trim().equalsIgnoreCase("сегодня") || part[0].trim().equalsIgnoreCase("вчера")) {
+            pattern = "yyyy-MM-dd hh:mm";
+            if (part[0].trim().equalsIgnoreCase("вчера")) {
+                date = date.minusDays(1);
+            }
+            strout = date.toString().concat(" ").concat(part[1].trim());
+        }
+        DateFormatSymbols dateFormatSymbols = new DateFormatSymbols();
+        dateFormatSymbols.setShortMonths(new String[]{"янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"});
+        return new SimpleDateFormat(pattern, dateFormatSymbols).parse(strout);
+
     }
 }
