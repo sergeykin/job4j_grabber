@@ -26,7 +26,6 @@ public class SqlRuParse {
                 System.out.println(altCol.get(2 * i + 1).text());
             }
         }
-
     }
 
     public Date convertSqlDate(String s) throws ParseException {
