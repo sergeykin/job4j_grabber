@@ -14,15 +14,19 @@ import java.util.Date;
 
 public class SqlRuParse {
     public static void main(String[] args) throws Exception {
-        Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
-        Elements row = doc.select(".postslisttopic");
-        Elements altCol = doc.select(".altCol");
-        for (int i = 0; i < row.size(); i++) {
-            Element href = row.get(i).child(0);
-            System.out.println(href.attr("href"));
-            System.out.println(href.text());
-            System.out.println(altCol.get(2 * i + 1).text());
+        String url = "https://www.sql.ru/forum/job-offers/";
+        for (int j = 0; j < 5; j++) {
+            Document doc = Jsoup.connect(url.concat(String.valueOf(j + 1))).get();
+            Elements row = doc.select(".postslisttopic");
+            Elements altCol = doc.select(".altCol");
+            for (int i = 0; i < row.size(); i++) {
+                Element href = row.get(i).child(0);
+                System.out.println(href.attr("href"));
+                System.out.println(href.text());
+                System.out.println(altCol.get(2 * i + 1).text());
+            }
         }
+
     }
 
     public Date convertSqlDate(String s) throws ParseException {
