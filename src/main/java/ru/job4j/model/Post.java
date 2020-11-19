@@ -3,14 +3,16 @@ package ru.job4j.model;
 import java.util.Date;
 
 public class Post {
-    String href;
-    String text;
-    Date date;
+    private String href;
+    private String text;
+    private Date date;
+    private String description;
 
     public Post(String href, String text, Date date) {
         this.href = href;
         this.text = text;
         this.date = date;
+        this.description = description;
     }
 
     public String getHref() {
@@ -35,5 +37,13 @@ public class Post {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
