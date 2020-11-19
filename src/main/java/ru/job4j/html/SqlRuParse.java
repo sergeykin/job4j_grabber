@@ -6,6 +6,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,12 +24,13 @@ public class SqlRuParse {
                 Element href = row.get(i).child(0);
                 System.out.println(href.attr("href"));
                 System.out.println(href.text());
-                System.out.println(altCol.get(2 * i + 1).text());
+                System.out.println(convertSqlDate(altCol.get(2 * i + 1).text()));
+                System.out.println(getDescriptionPost(href.attr("href")));
             }
         }
     }
 
-    public Date convertSqlDate(String s) throws ParseException {
+    public static Date convertSqlDate(String s) throws ParseException {
         LocalDate date = LocalDate.now();
         String pattern = "d MMM yy, hh:mm";
         String strout = s;
@@ -44,5 +46,16 @@ public class SqlRuParse {
         dateFormatSymbols.setShortMonths(new String[]{"янв", "фев", "мар", "апр", "май", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"});
         return new SimpleDateFormat(pattern, dateFormatSymbols).parse(strout);
 
+    }
+
+    public static String getDescriptionPost(String url) throws IOException {
+        String description = "";
+
+        Document doc = Jsoup.connect(url).get();
+        Elements row = doc.select(".msgBody");
+        if (row.size() > 1) {
+            description = row.get(1).text();
+        }
+        return description;
     }
 }
