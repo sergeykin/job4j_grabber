@@ -5,29 +5,23 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.grabber.Parse;
+import ru.job4j.model.Post;
 
 import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-public class SqlRuParse {
+public class SqlRuParse implements Parse {
     public static void main(String[] args) throws Exception {
         String url = "https://www.sql.ru/forum/job-offers/";
-        for (int j = 0; j < 5; j++) {
-            Document doc = Jsoup.connect(url.concat(String.valueOf(j + 1))).get();
-            Elements row = doc.select(".postslisttopic");
-            Elements altCol = doc.select(".altCol");
-            for (int i = 0; i < row.size(); i++) {
-                Element href = row.get(i).child(0);
-                System.out.println(href.attr("href"));
-                System.out.println(href.text());
-                System.out.println(convertSqlDate(altCol.get(2 * i + 1).text()));
-                System.out.println(getDescriptionPost(href.attr("href")));
-            }
-        }
+        SqlRuParse sqlRuParse = new SqlRuParse();
+        System.out.println(sqlRuParse.list(url));
     }
 
     public static Date convertSqlDate(String s) throws ParseException {
@@ -57,5 +51,24 @@ public class SqlRuParse {
             description = row.get(1).text();
         }
         return description;
+    }
+
+    @Override
+    public List<Post> list(String link) throws IOException, ParseException {
+        List<Post> list = new ArrayList<>();
+        Document doc = Jsoup.connect(link).get();
+        Elements row = doc.select(".postslisttopic");
+        Elements altCol = doc.select(".altCol");
+        for (int i = 0; i < row.size(); i++) {
+            Element href = row.get(i).child(0);
+            list.add(detail(href.attr("href"), href.text(), convertSqlDate(altCol.get(2 * i + 1).text())));
+        }
+        return list;
+    }
+
+    @Override
+    public Post detail(String link, String text, Date date) throws IOException {
+        String description = getDescriptionPost(link);
+        return new Post(link, text, date, description);
     }
 }

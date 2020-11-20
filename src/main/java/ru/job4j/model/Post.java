@@ -8,7 +8,7 @@ public class Post {
     private Date date;
     private String description;
 
-    public Post(String href, String text, Date date) {
+    public Post(String href, String text, Date date, String description) {
         this.href = href;
         this.text = text;
         this.date = date;
@@ -45,5 +45,15 @@ public class Post {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Post{"
+                + "href='" + href + '\''
+                + ", text='" + text + '\''
+                + ", date=" + date
+                + ", description='" + description + '\''
+                + '}';
     }
 }
