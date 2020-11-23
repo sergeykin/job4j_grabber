@@ -3,6 +3,7 @@ package ru.job4j.grabber;
 import java.util.Date;
 
 public class Post {
+    private String id;
     private String href;
     private String text;
     private Date date;
@@ -45,6 +46,14 @@ public class Post {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
